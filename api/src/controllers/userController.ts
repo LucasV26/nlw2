@@ -1,16 +1,17 @@
 import { Request, Response } from "express";
-import { getRepository } from "typeorm";
-import { User } from "../models/User";
+import { getCustomRepository } from "typeorm";
+import { usersRepository } from "../repositories/usersRepository";
 
 class userController {
 
     async create(request: Request, response: Response) {
         const { name, email } = request.body;
-        const usersRepository = getRepository(User);
 
-        const userAlreadyExists = await usersRepository.findOne({
+        const UsersRepository = getCustomRepository(usersRepository);
+
+        const userAlreadyExists = await UsersRepository.findOne({
             email
-        });
+        }); //SELECT * FROM Users WHERE Email = email
 
         if (userAlreadyExists) {
             // Status 400 de BadRequest para cadastro de usuario repetido
@@ -19,11 +20,11 @@ class userController {
             })
         }
 
-        const user = usersRepository.create({ name, email });
+        const user = UsersRepository.create({ name, email });
 
-        await usersRepository.save(user);
+        await UsersRepository.save(user);
 
-        return response.json(user);
+        return response.status(201).json(user);
     }
 }
 
